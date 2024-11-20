@@ -1,12 +1,13 @@
 import { auth } from "../config/firebase.config";
 import { useEffect, useState } from "react";
 import type { User } from "firebase/auth";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { Form } from "@remix-run/react";
+import { onAuthStateChanged } from "firebase/auth";
+import { Form, useNavigate } from "@remix-run/react";
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -16,15 +17,6 @@ export default function Index() {
 
     return () => unsubscribe();
   }, []);
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      setUser(null);
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
 
   if (loading) {
     return (
@@ -43,34 +35,36 @@ export default function Index() {
           <div className="flex flex-col items-center gap-4">
             <p className="text-gray-600">Eingeloggt als: {user.email}</p>
             <div className="flex gap-4">
-              <a
-                href="/dashboard"
+              <button
+                onClick={() => navigate("/dashboard")}
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors"
               >
                 Zum Dashboard
-              </a>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors"
-              >
-                Ausloggen
               </button>
+              <Form action="/logout" method="post">
+                <button
+                  type="submit"
+                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors"
+                >
+                  Ausloggen
+                </button>
+              </Form>
             </div>
           </div>
         ) : (
           <div className="flex gap-4">
-            <a
-              href="/login"
+            <button
+              onClick={() => navigate("/login")}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors"
             >
               Anmelden
-            </a>
-            <a
-              href="/register"
+            </button>
+            <button
+              onClick={() => navigate("/register")}
               className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors"
             >
               Registrieren
-            </a>
+            </button>
           </div>
         )}
       </div>

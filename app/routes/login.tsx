@@ -1,12 +1,17 @@
-import { useState } from "react";
-import { Form, useActionData, useNavigate } from "@remix-run/react";
-import { auth, getCurrentUser } from "../config/firebase.config";
+import { Form, useActionData } from "@remix-run/react";
+import { auth } from "../config/firebase.config";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 
 export const loader: LoaderFunction = async () => {
-  const user = await getCurrentUser();
+  const user = await new Promise((resolve) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+
   if (user) {
     return redirect("/dashboard");
   }
@@ -24,6 +29,9 @@ export const action: ActionFunction = async ({ request }) => {
       email,
       password
     );
+    if (!userCredential.user) {
+      throw new Error("Login fehlgeschlagen");
+    }
     return redirect("/dashboard");
   } catch (error) {
     return json(
@@ -37,7 +45,6 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function Login() {
   const actionData = useActionData<typeof action>();
-  const navigate = useNavigate();
 
   return (
     <div className="flex h-screen items-center justify-center bg-gray-50">

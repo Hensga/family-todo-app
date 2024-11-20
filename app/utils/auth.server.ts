@@ -1,5 +1,6 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 import { getCurrentUser } from "../config/firebase.config";
+import type { User } from "firebase/auth";
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -12,14 +13,14 @@ const sessionStorage = createCookieSessionStorage({
   },
 });
 
-export async function requireAuth(request: Request) {
+export async function requireAuth(request: Request): Promise<User> {
   const user = await getCurrentUser();
 
   if (!user) {
     throw redirect("/login");
   }
 
-  return user;
+  return user as User;
 }
 
 export async function createUserSession(userId: string, redirectTo: string) {

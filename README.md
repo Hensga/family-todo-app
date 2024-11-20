@@ -7,7 +7,7 @@ Eine Familien-ToDo-App entwickelt mit Remix und Firebase.
 1. Repository klonen:
 
 ```bash
-git clone https://github.com/ihr-username/familien-todo-app.git
+git clone https://github.com/Hensga/family-todo-app
 cd familien-todo-app
 ```
 

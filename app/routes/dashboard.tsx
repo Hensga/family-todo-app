@@ -1,9 +1,14 @@
 import { json, redirect } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  Outlet,
+  useLoaderData,
+  useNavigate,
+} from "@remix-run/react";
 import { auth } from "../config/firebase.config";
 import { signOut } from "firebase/auth";
-import type { LoaderFunction, ActionFunction } from "@remix-run/node";
-import { requireAuth, logout } from "../utils/auth.server";
+import type { LoaderFunction } from "@remix-run/node";
 import type { User } from "firebase/auth";
 
 type LoaderData = {
@@ -11,8 +16,14 @@ type LoaderData = {
   displayName: string | null;
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const user = (await requireAuth(request)) as User;
+export const loader: LoaderFunction = async () => {
+  // Strikte Auth-Prüfung
+  const user = await new Promise<User | null>((resolve) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
 
   if (!user) {
     throw redirect("/login");
@@ -24,22 +35,18 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
 };
 
-export const action: ActionFunction = async ({ request }) => {
-  if (request.method !== "POST") {
-    throw new Response("Method not allowed", { status: 405 });
-  }
-
-  try {
-    await signOut(auth); // Firebase Logout
-    return redirect("/"); // Zur Homepage statt Login
-  } catch (error) {
-    console.error("Logout error:", error);
-    return redirect("/");
-  }
-};
-
 export default function Dashboard() {
-  const { email, displayName } = useLoaderData<LoaderData>();
+  const navigate = useNavigate();
+  const { email } = useLoaderData<LoaderData>();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate("/");
+    } catch (error) {
+      console.error("Fehler beim Ausloggen:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -51,7 +58,7 @@ export default function Dashboard() {
             </div>
             <div className="flex items-center gap-4">
               <span className="text-gray-600">Eingeloggt als: {email}</span>
-              <Form method="post">
+              <Form action="/logout" method="post">
                 <button
                   type="submit"
                   className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors"
@@ -65,11 +72,19 @@ export default function Dashboard() {
       </nav>
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0 text-slate-900">
-          <div className="border-4 border-dashed border-gray-200 rounded-lg h-96 p-4">
-            <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
-            <p className="text-lg">Willkommen {displayName || email}!</p>
-            {/* Hier können später die ToDo-Listen und andere Features hinzugefügt werden */}
+        <div className="px-4 py-6 sm:px-0">
+          <div className="mb-6 flex justify-between items-center">
+            <h2 className="text-2xl font-bold">Aufgaben-Übersicht</h2>
+            <Link
+              to="/dashboard/tasks/new"
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors"
+            >
+              Neue Aufgabe
+            </Link>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <Outlet />
           </div>
         </div>
       </main>
