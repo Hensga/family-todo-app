@@ -1,40 +1,61 @@
-# Welcome to Remix!
+# Familien-ToDo-App
 
-- 📖 [Remix docs](https://remix.run/docs)
+Eine Familien-ToDo-App entwickelt mit Remix und Firebase.
 
-## Development
+## Installation
 
-Run the dev server:
+1. Repository klonen:
 
-```shellscript
+```bash
+git clone https://github.com/ihr-username/familien-todo-app.git
+cd familien-todo-app
+```
+
+2. Abhängigkeiten installieren:
+
+```bash
+npm install
+```
+
+3. Umgebungsvariablen konfigurieren:
+
+   - Kopieren Sie `.env.example` zu `.env`
+   - Tragen Sie Ihre Firebase-Konfigurationswerte ein
+   - Generieren Sie einen sicheren SESSION_SECRET
+
+4. Entwicklungsserver starten:
+
+```bash
 npm run dev
 ```
 
-## Deployment
+## Firebase-Einrichtung
 
-First, build your app for production:
+1. Erstellen Sie ein neues Projekt in der [Firebase Console](https://console.firebase.google.com)
+2. Aktivieren Sie Authentication mit Email/Passwort
+3. Erstellen Sie eine Firestore-Datenbank
+4. Kopieren Sie die Projektkonfiguration in Ihre `.env` Datei
 
-```sh
+## Entwicklung
+
+```bash
+npm run dev
+```
+
+## Produktion
+
+Build erstellen:
+
+```bash
 npm run build
 ```
 
-Then run the app in production mode:
+Produktionsserver starten:
 
-```sh
+```bash
 npm start
 ```
 
-Now you'll need to pick a host to deploy it to.
+## Lizenz
 
-### DIY
-
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-- `build/server`
-- `build/client`
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+MIT
